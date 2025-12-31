@@ -1,0 +1,62 @@
+{
+  "name": "vue-apextree",
+  "version": "1.0.0",
+  "description": "Vue wrapper for ApexTree - a JavaScript library for creating organizational and hierarchical charts",
+  "author": "ApexCharts <info@apexcharts.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "main": "./dist/vue-apextree.umd.cjs",
+  "module": "./dist/vue-apextree.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/vue-apextree.js",
+      "require": "./dist/vue-apextree.umd.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "keywords": [
+    "vue",
+    "vue3",
+    "apextree",
+    "tree",
+    "chart",
+    "organizational-chart",
+    "org-chart",
+    "hierarchy",
+    "flowchart",
+    "diagram"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apexcharts/vue-apextree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apexcharts/vue-apextree/issues"
+  },
+  "homepage": "https://github.com/apexcharts/vue-apextree#readme",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vue-tsc --noEmit && vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "demo": "npm run --prefix demo dev",
+    "demo:build": "npm run --prefix demo build"
+  },
+  "peerDependencies": {
+    "apextree": ">=1.0.0",
+    "vue": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "apextree": "^1.0.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6",
+    "vite-plugin-dts": "^4.4.0",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  }
+}
