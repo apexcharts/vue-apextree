@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import type { ApexTreeProps, ApexTreeExposed, ApexTreeEmits } from '../types';
+import type { ApexTreeProps, ApexTreeExposed, ApexTreeEmits, TreeDirection } from '../types';
 import type { NestedNode } from 'apextree';
 import { useApexTree } from '../composables/useApexTree';
 
@@ -50,7 +50,7 @@ watch(
 
 // expose imperative methods
 defineExpose<ApexTreeExposed>({
-  changeLayout: (direction?: string) => changeLayout(direction),
+  changeLayout: (direction?: TreeDirection) => changeLayout(direction),
   collapse: (nodeId: string) => collapse(nodeId),
   expand: (nodeId: string) => expand(nodeId),
   fitScreen: () => fitScreen(),
