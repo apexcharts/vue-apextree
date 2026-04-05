@@ -1,25 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ApexTreeChart, type ApexTreeExpose, type NodeData, type TreeDirection } from 'vue-apextree';
+import { ApexTreeChart } from 'vue-apextree';
+import type { ApexTreeExpose, NestedNode, TreeDirection } from 'vue-apextree';
 
 const treeRef = ref<ApexTreeExpose | null>(null);
 const currentDirection = ref<TreeDirection>('top');
 
-const data: NodeData = {
+const data: NestedNode<unknown> = {
   id: '1',
   name: 'CEO',
+  data: undefined,
   children: [
     {
       id: '2',
       name: 'CTO',
+      data: undefined,
       children: [
-        { id: '3', name: 'Dev Lead' },
-        { id: '4', name: 'QA Lead' },
+        { id: '3', name: 'Dev Lead', data: undefined, children: [] },
+        { id: '4', name: 'QA Lead', data: undefined, children: [] },
       ],
     },
     {
       id: '5',
       name: 'CFO',
+      data: undefined,
+      children: [],
     },
   ],
 };
@@ -74,12 +79,7 @@ const fitScreen = () => {
       <ApexTreeChart
         ref="treeRef"
         :data="data"
-        :width="800"
-        :height="400"
-        :direction="currentDirection"
-        :node-width="120"
-        :node-height="60"
-        :enable-expand-collapse="true"
+        :options="{ width: 800, height: 400, direction: currentDirection, nodeWidth: 120, nodeHeight: 60, enableExpandCollapse: true }"
       />
     </div>
   </div>

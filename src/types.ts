@@ -33,7 +33,7 @@ export interface ApexTreeExposed {
  * props for the ApexTreeChart Vue component.
  * onNodeClick is omitted from options; use the @node-click emit instead.
  */
-export interface ApexTreeProps<T = undefined> {
+export interface ApexTreeProps<T = unknown> {
   /** Tree data structure */
   data: NestedNode<T>;
   /** Configuration options — imported from core apextree, zero local re-definition */

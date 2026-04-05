@@ -1,54 +1,59 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ApexTreeChart, type NodeData } from 'vue-apextree';
+import { ApexTreeChart } from 'vue-apextree';
+import type { NestedNode } from 'vue-apextree';
 
-// reactive tree data
-const nodes = ref<NodeData[]>([
+// use unknown so callers don't need to supply data: undefined on every node
+type AnyNode = NestedNode<unknown>;
+
+const nodes = ref<AnyNode[]>([
   {
     id: '2',
     name: 'CTO',
+    data: undefined,
     children: [
-      { id: '3', name: 'Dev Lead' },
+      { id: '3', name: 'Dev Lead', data: undefined, children: [] },
     ],
   },
   {
     id: '4',
     name: 'CFO',
+    data: undefined,
+    children: [],
   },
 ]);
 
-// computed data structure for the tree
-const data = computed<NodeData>(() => ({
+const data = computed<AnyNode>(() => ({
   id: '1',
   name: 'CEO',
+  data: undefined,
   children: nodes.value,
 }));
 
-// counter for generating unique IDs
 let nodeCounter = 10;
 
 const addNode = () => {
-  const newNode: NodeData = {
+  const newNode: AnyNode = {
     id: String(nodeCounter++),
     name: `New Node ${nodeCounter - 10}`,
+    data: undefined,
+    children: [],
   };
   nodes.value = [...nodes.value, newNode];
 };
 
 const addChildToCTO = () => {
-  const ctoIndex = nodes.value.findIndex((n) => n.id === '2');
+  const ctoIndex = nodes.value.findIndex((n: AnyNode) => n.id === '2');
   if (ctoIndex !== -1) {
-    const newChild: NodeData = {
+    const newChild: AnyNode = {
       id: String(nodeCounter++),
       name: `Engineer ${nodeCounter - 10}`,
+      data: undefined,
+      children: [],
     };
-    // create new array with updated node to trigger reactivity
-    nodes.value = nodes.value.map((node, index) => {
+    nodes.value = nodes.value.map((node: AnyNode, index: number) => {
       if (index === ctoIndex) {
-        return {
-          ...node,
-          children: [...(node.children || []), newChild],
-        };
+        return { ...node, children: [...node.children, newChild] };
       }
       return node;
     });
@@ -63,12 +68,10 @@ const removeLastNode = () => {
 
 const renameRandomNode = () => {
   const allIds: string[] = [];
-  const collectIds = (nodeList: NodeData[]) => {
+  const collectIds = (nodeList: AnyNode[]) => {
     for (const node of nodeList) {
       allIds.push(node.id);
-      if (node.children) {
-        collectIds(node.children);
-      }
+      collectIds(node.children as AnyNode[]);
     }
   };
   collectIds(nodes.value);
@@ -76,16 +79,12 @@ const renameRandomNode = () => {
   const targetId = allIds[Math.floor(Math.random() * allIds.length)];
   const newName = `Renamed ${Date.now() % 1000}`;
 
-  // recursively update node name
-  const updateNodeName = (nodeList: NodeData[]): NodeData[] => {
-    return nodeList.map((node) => {
+  const updateNodeName = (nodeList: AnyNode[]): AnyNode[] => {
+    return nodeList.map((node: AnyNode) => {
       if (node.id === targetId) {
         return { ...node, name: newName };
       }
-      if (node.children) {
-        return { ...node, children: updateNodeName(node.children) };
-      }
-      return node;
+      return { ...node, children: updateNodeName(node.children as AnyNode[]) };
     });
   };
 
@@ -111,13 +110,7 @@ const renameRandomNode = () => {
     <div class="chart-container">
       <ApexTreeChart
         :data="data"
-        :width="800"
-        :height="400"
-        direction="top"
-        :node-width="120"
-        :node-height="50"
-        :highlight-on-hover="true"
-        :enable-expand-collapse="true"
+        :options="{ width: 800, height: 400, direction: 'top', nodeWidth: 120, nodeHeight: 50, highlightOnHover: true, enableExpandCollapse: true }"
       />
     </div>
 

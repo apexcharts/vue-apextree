@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ApexTreeChart, type NodeData } from 'vue-apextree';
+import { ApexTreeChart } from 'vue-apextree';
+import type { NestedNode } from 'vue-apextree';
 
 interface PersonData {
   name: string;
@@ -7,8 +8,9 @@ interface PersonData {
   avatar: string;
 }
 
-const data: NodeData<PersonData> = {
+const data: NestedNode<PersonData> = {
   id: '1',
+  name: 'John Smith',
   data: {
     name: 'John Smith',
     title: 'CEO',
@@ -17,6 +19,7 @@ const data: NodeData<PersonData> = {
   children: [
     {
       id: '2',
+      name: 'Sarah Johnson',
       data: {
         name: 'Sarah Johnson',
         title: 'CTO',
@@ -25,36 +28,41 @@ const data: NodeData<PersonData> = {
       children: [
         {
           id: '3',
+          name: 'Mike Wilson',
           data: {
             name: 'Mike Wilson',
             title: 'Dev Lead',
             avatar: 'https://i.pravatar.cc/100?img=3',
           },
+          children: [],
         },
         {
           id: '4',
+          name: 'Emily Brown',
           data: {
             name: 'Emily Brown',
             title: 'QA Lead',
             avatar: 'https://i.pravatar.cc/100?img=9',
           },
+          children: [],
         },
       ],
     },
     {
       id: '5',
+      name: 'David Lee',
       data: {
         name: 'David Lee',
         title: 'CFO',
         avatar: 'https://i.pravatar.cc/100?img=8',
       },
+      children: [],
     },
   ],
 };
 
-// custom template function for nodes
-const nodeTemplate = (content: unknown): string => {
-  const person = content as PersonData;
+const nodeTemplate = (content: string): string => {
+  const person = JSON.parse(content) as PersonData;
   return `
     <div style="
       display: flex;
@@ -65,8 +73,8 @@ const nodeTemplate = (content: unknown): string => {
       padding: 8px;
       text-align: center;
     ">
-      <img 
-        src="${person.avatar}" 
+      <img
+        src="${person.avatar}"
         style="
           width: 40px;
           height: 40px;
@@ -85,9 +93,8 @@ const nodeTemplate = (content: unknown): string => {
   `;
 };
 
-// custom tooltip template
-const tooltipTemplate = (content: unknown): string => {
-  const person = content as PersonData;
+const tooltipTemplate = (content: string): string => {
+  const person = JSON.parse(content) as PersonData;
   return `
     <div style="text-align: center;">
       <strong>${person.name}</strong><br/>
@@ -96,10 +103,10 @@ const tooltipTemplate = (content: unknown): string => {
   `;
 };
 
-const handleNodeClick = (node: NodeData) => {
-  const person = node.data as PersonData | undefined;
-  if (person) {
-    alert(`${person.name} - ${person.title}`);
+const handleNodeClick = (node: unknown) => {
+  const n = node as { data?: PersonData };
+  if (n.data) {
+    alert(`${n.data.name} - ${n.data.title}`);
   }
 };
 </script>
@@ -112,21 +119,23 @@ const handleNodeClick = (node: NodeData) => {
     <div class="chart-container">
       <ApexTreeChart
         :data="data"
-        :width="800"
-        :height="500"
-        direction="top"
-        content-key="data"
-        :node-width="140"
-        :node-height="100"
-        :node-template="nodeTemplate"
-        :enable-tooltip="true"
-        :tooltip-template="tooltipTemplate"
-        node-b-g-color="#f8f9fa"
-        node-b-g-color-hover="#e8eaf6"
-        border-color="#667eea"
-        border-color-hover="#764ba2"
-        :border-width="2"
-        border-radius="8px"
+        :options="{
+          width: 800,
+          height: 500,
+          direction: 'top',
+          contentKey: 'data',
+          nodeWidth: 140,
+          nodeHeight: 100,
+          nodeTemplate,
+          enableTooltip: true,
+          tooltipTemplate,
+          nodeBGColor: '#f8f9fa',
+          nodeBGColorHover: '#e8eaf6',
+          borderColor: '#667eea',
+          borderColorHover: '#764ba2',
+          borderWidth: 2,
+          borderRadius: '8px',
+        }"
         @node-click="handleNodeClick"
       />
     </div>

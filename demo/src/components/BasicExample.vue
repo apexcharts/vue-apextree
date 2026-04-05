@@ -1,39 +1,45 @@
 <script setup lang="ts">
-import { ApexTreeChart, type NodeData } from 'vue-apextree';
+import { ApexTreeChart } from 'vue-apextree';
+import type { NestedNode } from 'vue-apextree';
 
-const data: NodeData = {
+const data: NestedNode<unknown> = {
   id: '1',
   name: 'CEO',
+  data: undefined,
   children: [
     {
       id: '2',
       name: 'CTO',
+      data: undefined,
       children: [
-        { id: '3', name: 'Dev Lead' },
-        { id: '4', name: 'QA Lead' },
+        { id: '3', name: 'Dev Lead', data: undefined, children: [] },
+        { id: '4', name: 'QA Lead', data: undefined, children: [] },
       ],
     },
     {
       id: '5',
       name: 'CFO',
+      data: undefined,
       children: [
-        { id: '6', name: 'Accountant' },
+        { id: '6', name: 'Accountant', data: undefined, children: [] },
       ],
     },
     {
       id: '7',
       name: 'COO',
+      data: undefined,
       children: [
-        { id: '8', name: 'Operations Manager' },
-        { id: '9', name: 'HR Manager' },
+        { id: '8', name: 'Operations Manager', data: undefined, children: [] },
+        { id: '9', name: 'HR Manager', data: undefined, children: [] },
       ],
     },
   ],
 };
 
-const handleNodeClick = (node: NodeData) => {
+const handleNodeClick = (node: unknown) => {
   console.log('Node clicked:', node);
-  alert(`Clicked: ${node.name}`);
+  const n = node as { name?: string };
+  alert(`Clicked: ${n.name}`);
 };
 </script>
 
@@ -45,12 +51,7 @@ const handleNodeClick = (node: NodeData) => {
     <div class="chart-container">
       <ApexTreeChart
         :data="data"
-        :width="800"
-        :height="500"
-        direction="top"
-        :node-width="120"
-        :node-height="60"
-        :highlight-on-hover="true"
+        :options="{ width: 800, height: 500, direction: 'top', nodeWidth: 120, nodeHeight: 60, highlightOnHover: true }"
         @node-click="handleNodeClick"
       />
     </div>
