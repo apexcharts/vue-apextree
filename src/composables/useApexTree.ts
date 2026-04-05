@@ -1,93 +1,108 @@
-import { ref, shallowRef, onUnmounted } from 'vue';
-import ApexTree from 'apextree';
-import type { GraphInstance, NodeData, TreeDirection } from '../types';
+import { shallowRef, onUnmounted } from 'vue'
+import ApexTree from 'apextree'
+import type { TreeOptions, NestedNode, TreeDirection } from 'apextree'
+import type { GraphInstance } from '../types'
+
+interface ApexTreeInstance {
+  render(data: NestedNode): GraphInstance
+  destroy(): void
+}
 
 /**
- * composable for managing ApexTree instance
+ * composable for managing ApexTree instance lifecycle
  * provides reactive tree management with imperative methods
  */
 export function useApexTree() {
-  const graphRef = shallowRef<GraphInstance | null>(null);
-  const containerRef = ref<HTMLElement | null>(null);
+  const treeRef = shallowRef<ApexTreeInstance | null>(null)
+  const graphRef = shallowRef<GraphInstance | null>(null)
 
   /**
-   * renders tree in the container element
+   * renders tree in the container element; destroys any previous instance first.
+   * onNodeClick is injected here rather than inside options so callers can
+   * keep options stable and pass the callback separately.
    */
   function render(
     container: HTMLElement,
-    data: NodeData,
-    options: Record<string, unknown>
+    data: NestedNode,
+    options: Omit<Partial<TreeOptions>, 'onNodeClick'>,
+    onNodeClick?: (node: unknown) => void
   ): GraphInstance | null {
-    // clear previous content
-    container.innerHTML = '';
+    // destroy previous instance via the core API
+    if (treeRef.value) {
+      treeRef.value.destroy()
+      treeRef.value = null
+      graphRef.value = null
+    }
 
-    // create new tree instance and render
-    const tree = new ApexTree(container, options);
-    const graph = tree.render(data as any) as GraphInstance;
+    const mergedOptions: Partial<TreeOptions> = {
+      ...options,
+      ...(onNodeClick !== undefined && { onNodeClick }),
+    }
 
-    graphRef.value = graph;
-    containerRef.value = container;
+    const tree = new ApexTree(container, mergedOptions)
+    const graph = tree.render(data) as GraphInstance
 
-    return graph;
+    treeRef.value = tree as unknown as ApexTreeInstance
+    graphRef.value = graph
+
+    return graph
   }
 
   /**
    * changes tree layout direction
    */
   function changeLayout(direction?: TreeDirection): void {
-    graphRef.value?.changeLayout(direction);
+    graphRef.value?.changeLayout(direction)
   }
 
   /**
    * collapses a node by id
    */
   function collapse(nodeId: string): void {
-    graphRef.value?.collapse(nodeId);
+    graphRef.value?.collapse(nodeId)
   }
 
   /**
    * expands a node by id
    */
   function expand(nodeId: string): void {
-    graphRef.value?.expand(nodeId);
+    graphRef.value?.expand(nodeId)
   }
 
   /**
    * fits tree to screen
    */
   function fitScreen(): void {
-    graphRef.value?.fitScreen();
+    graphRef.value?.fitScreen()
   }
 
   /**
    * gets the underlying graph instance
    */
   function getGraph(): GraphInstance | null {
-    return graphRef.value;
+    return graphRef.value
   }
 
   /**
-   * cleans up container content
+   * destroys the chart instance and releases resources
    */
-  function cleanup(): void {
-    if (containerRef.value) {
-      containerRef.value.innerHTML = '';
-    }
-    graphRef.value = null;
+  function destroy(): void {
+    treeRef.value?.destroy()
+    treeRef.value = null
+    graphRef.value = null
   }
 
-  // cleanup on unmount
-  onUnmounted(cleanup);
+  // destroy on component unmount
+  onUnmounted(destroy)
 
   return {
     graphRef,
-    containerRef,
     render,
     changeLayout,
     collapse,
     expand,
     fitScreen,
     getGraph,
-    cleanup,
-  };
+    destroy,
+  }
 }

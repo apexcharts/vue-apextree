@@ -1,19 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, computed } from 'vue';
-import type {
-  ApexTreeProps,
-  ApexTreeExposed,
-  NodeData,
-  TreeDirection,
-} from '../types';
-import { buildOptions } from '../utils';
+import { ref, watch, onMounted } from 'vue';
+import type { ApexTreeProps, ApexTreeExposed, ApexTreeEmits } from '../types';
+import type { NestedNode } from 'apextree';
 import { useApexTree } from '../composables/useApexTree';
 
-const props = withDefaults(defineProps<ApexTreeProps>(), {
-  width: 400,
-  height: 400,
-  direction: 'top',
-});
+const props = defineProps<ApexTreeProps>();
+const emit = defineEmits<ApexTreeEmits>();
 
 const containerRef = ref<HTMLElement | null>(null);
 
@@ -26,9 +18,6 @@ const {
   getGraph,
 } = useApexTree();
 
-// compute options from props (excluding vue-specific props)
-const options = computed(() => buildOptions(props));
-
 /**
  * renders the tree with current data and options
  */
@@ -37,7 +26,12 @@ function renderTree(): void {
     return;
   }
 
-  render(containerRef.value, props.data as NodeData, options.value);
+  render(
+    containerRef.value,
+    props.data as NestedNode,
+    props.options ?? {},
+    (node) => emit('nodeClick', node)
+  );
 }
 
 // initial render
@@ -45,18 +39,9 @@ onMounted(() => {
   renderTree();
 });
 
-// watch for data changes (deep watch for nested updates)
+// watch for data or options changes and re-render
 watch(
-  () => props.data,
-  () => {
-    renderTree();
-  },
-  { deep: true }
-);
-
-// watch for options changes
-watch(
-  options,
+  () => [props.data, props.options],
   () => {
     renderTree();
   },
@@ -65,7 +50,7 @@ watch(
 
 // expose imperative methods
 defineExpose<ApexTreeExposed>({
-  changeLayout: (direction?: TreeDirection) => changeLayout(direction),
+  changeLayout: (direction?: string) => changeLayout(direction),
   collapse: (nodeId: string) => collapse(nodeId),
   expand: (nodeId: string) => expand(nodeId),
   fitScreen: () => fitScreen(),

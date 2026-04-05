@@ -10,9 +10,9 @@ export type {
   ApexTreeExposed,
   ApexTreeExposed as ApexTreeExpose,
   GraphInstance,
-  NodeData,
-  NodeOptions,
+  NestedNode,
   TreeDirection,
+  TreeOptions,
 } from './types';
 
 // re-export setLicense from apextree for convenience
