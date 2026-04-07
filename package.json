@@ -1,6 +1,6 @@
 {
   "name": "vue-apextree",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Vue wrapper for ApexTree - a JavaScript library for creating organizational and hierarchical charts",
   "author": "ApexCharts <info@apexcharts.com>",
   "license": "SEE LICENSE IN LICENSE",
@@ -47,7 +47,7 @@
     "demo:build": "npm run --prefix demo build"
   },
   "peerDependencies": {
-    "apextree": ">=1.0.0",
+    "apextree": ">=1.9.0",
     "vue": ">=3.0.0"
   },
   "devDependencies": {
