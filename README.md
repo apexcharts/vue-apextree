@@ -185,13 +185,61 @@ const treeRef = ref<ApexTreeExpose | null>(null);
 </template>
 ```
 
+Conveniences for the common verbs. Anything not listed is reachable through
+`getGraph()`, which returns the fully typed graph instance.
+
 | Method | Signature | Description |
 |--------|-----------|-------------|
 | `changeLayout` | `(direction?: TreeDirection) => void` | Change tree grow direction |
 | `collapse` | `(nodeId: string) => void` | Collapse a node by id |
 | `expand` | `(nodeId: string) => void` | Expand a node by id |
 | `fitScreen` | `() => void` | Fit the tree to the container |
+| `updateData` | `(data: NestedNode) => void` | Reconcile a new dataset with animation |
+| `expandAll` | `() => void` | Expand every node |
+| `collapseAll` | `() => void` | Collapse every node |
+| `expandToDepth` | `(depth: number) => void` | Expand down to a given depth |
+| `focus` | `(nodeId: string) => void` | Spotlight a node's lineage and subtree |
+| `clearFocus` | `() => void` | Clear the spotlight |
+| `setActivePath` | `(nodeIds: string[]) => void` | Flow an animated dash along the lineage |
+| `clearActivePath` | `() => void` | Clear the active path |
+| `toggleCard` | `(nodeId: string) => void` | Expand or collapse a node's card in place |
+| `zoom` | `(factor: number) => void` | Zoom relative to the current scale |
+| `centerOnNode` | `(nodeId: string) => void` | Center the camera on a node |
 | `getGraph` | `() => GraphInstance \| null` | Get the underlying graph instance |
+
+Everything from `updateData` down requires `apextree >= 2.0.0`.
+
+`getGraph()` is typed off the core `apextree` you have installed, so it also covers
+`expandSubtree`, `collapseSubtree`, `expandCard`, `collapseCard`,
+`setExpandedCards`, `getExpandedCards`, `getFocusedNodeId`, `getActivePath`,
+`setSelection`, `getSelection`, `clearSelection`, `getRootNodeId` and `getNodeLabel`.
+
+## Animated data updates
+
+Changing the `data` prop reconciles the new dataset into the live tree rather than
+rebuilding it: surviving nodes spring to their new positions, new ids grow in, and
+departed ones retract. Collapse state, selection, focus and expanded cards all
+survive the update.
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { ApexTreeChart } from 'vue-apextree';
+
+const data = ref(q1);
+</script>
+
+<template>
+  <button @click="data = q2">Next quarter</button>
+  <ApexTreeChart :data="data" :options="{ direction: 'top' }" />
+</template>
+```
+
+This needs `apextree >= 2.0.0`. On an older core the component falls back to the
+previous behavior and rebuilds the chart.
+
+Changing `options` still rebuilds the instance, since options are read at
+construction. Keep `options` stable if you update `data` frequently.
 
 ## Custom Node Templates
 
@@ -233,7 +281,9 @@ const nodeTemplate = (content: string): string => {
 
 ## Reactivity
 
-The component re-renders automatically when `data` or `options` change:
+The component updates automatically when `data` or `options` change. A `data`
+change is reconciled with animation (see [Animated data
+updates](#animated-data-updates)); an `options` change rebuilds the instance.
 
 ```vue
 <script setup lang="ts">

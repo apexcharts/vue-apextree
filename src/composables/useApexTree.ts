@@ -49,10 +49,98 @@ export function useApexTree() {
   }
 
   /**
+   * reconciles a new dataset into the live tree: surviving nodes spring to their
+   * new positions, new ids grow in, departed ones retract, and collapse state /
+   * selection / focus / expanded cards survive.
+   *
+   * Returns false when the installed core predates `updateData`
+   * (apextree < 2.0.0, which the `>=1.9.0` peer range still allows), so the
+   * caller can fall back to a full re-render.
+   */
+  function updateData(data: NestedNode): boolean {
+    const graph = graphRef.value
+    if (!graph || typeof graph.updateData !== 'function') {
+      return false
+    }
+    graph.updateData(data)
+    return true
+  }
+
+  /**
    * changes tree layout direction
    */
   function changeLayout(direction?: TreeDirection): void {
     graphRef.value?.changeLayout(direction)
+  }
+
+  /**
+   * expands every node in the tree
+   */
+  function expandAll(): void {
+    graphRef.value?.expandAll()
+  }
+
+  /**
+   * collapses every node in the tree
+   */
+  function collapseAll(): void {
+    graphRef.value?.collapseAll()
+  }
+
+  /**
+   * expands the tree down to a given depth
+   */
+  function expandToDepth(depth: number): void {
+    graphRef.value?.expandToDepth(depth)
+  }
+
+  /**
+   * spotlights a node's lineage and visible subtree
+   */
+  function focus(nodeId: string): void {
+    graphRef.value?.focus(nodeId)
+  }
+
+  /**
+   * clears the spotlight
+   */
+  function clearFocus(): void {
+    graphRef.value?.clearFocus()
+  }
+
+  /**
+   * flows an animated dash along the root-to-node lineage
+   */
+  function setActivePath(nodeIds: string[]): void {
+    graphRef.value?.setActivePath(nodeIds)
+  }
+
+  /**
+   * clears the active path
+   */
+  function clearActivePath(): void {
+    graphRef.value?.clearActivePath()
+  }
+
+  /**
+   * expands or collapses a node's card in place (not its children)
+   */
+  function toggleCard(nodeId: string): void {
+    graphRef.value?.toggleCard(nodeId)
+  }
+
+  /**
+   * zooms relative to the current scale
+   */
+  function zoom(factor: number): void {
+    graphRef.value?.zoom(factor)
+  }
+
+  /**
+   * centers the camera on a node, keeping the current zoom
+   */
+  function centerOnNode(nodeId: string): void {
+    graphRef.value?.centerOnNode(nodeId)
   }
 
   /**
@@ -98,10 +186,21 @@ export function useApexTree() {
   return {
     graphRef,
     render,
+    updateData,
     changeLayout,
     collapse,
     expand,
     fitScreen,
+    expandAll,
+    collapseAll,
+    expandToDepth,
+    focus,
+    clearFocus,
+    setActivePath,
+    clearActivePath,
+    toggleCard,
+    zoom,
+    centerOnNode,
     getGraph,
     destroy,
   }

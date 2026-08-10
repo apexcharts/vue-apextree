@@ -11,10 +11,21 @@ const containerRef = ref<HTMLElement | null>(null);
 
 const {
   render,
+  updateData,
   changeLayout,
   collapse,
   expand,
   fitScreen,
+  expandAll,
+  collapseAll,
+  expandToDepth,
+  focus,
+  clearFocus,
+  setActivePath,
+  clearActivePath,
+  toggleCard,
+  zoom,
+  centerOnNode,
   getGraph,
 } = useApexTree();
 
@@ -34,16 +45,41 @@ function renderTree(): void {
   );
 }
 
+/**
+ * Reconciles a new dataset into the live tree, falling back to a full re-render
+ * when the installed core predates `updateData` (apextree < 2.0.0).
+ */
+function applyData(): void {
+  if (!props.data) {
+    return;
+  }
+  if (!updateData(props.data as NestedNode)) {
+    renderTree();
+  }
+}
+
 // initial render
 onMounted(() => {
   renderTree();
 });
 
-// watch for data or options changes and re-render
+// Options are read at construction, so a change there needs a fresh instance.
 watch(
-  () => [props.data, props.options],
+  () => props.options,
   () => {
     renderTree();
+  },
+  { deep: true }
+);
+
+// A data change reconciles instead of rebuilding: surviving nodes spring to their
+// new positions, new ids grow in, departed ones retract, and collapse state /
+// selection / focus / expanded cards all survive. Before this, both watches shared
+// one handler and every data change tore the chart down.
+watch(
+  () => props.data,
+  () => {
+    applyData();
   },
   { deep: true }
 );
@@ -54,6 +90,21 @@ defineExpose<ApexTreeExposed>({
   collapse: (nodeId: string) => collapse(nodeId),
   expand: (nodeId: string) => expand(nodeId),
   fitScreen: () => fitScreen(),
+  updateData: (data: NestedNode) => {
+    if (!updateData(data)) {
+      renderTree();
+    }
+  },
+  expandAll: () => expandAll(),
+  collapseAll: () => collapseAll(),
+  expandToDepth: (depth: number) => expandToDepth(depth),
+  focus: (nodeId: string) => focus(nodeId),
+  clearFocus: () => clearFocus(),
+  setActivePath: (nodeIds: string[]) => setActivePath(nodeIds),
+  clearActivePath: () => clearActivePath(),
+  toggleCard: (nodeId: string) => toggleCard(nodeId),
+  zoom: (factor: number) => zoom(factor),
+  centerOnNode: (nodeId: string) => centerOnNode(nodeId),
   getGraph: () => getGraph(),
 });
 </script>
