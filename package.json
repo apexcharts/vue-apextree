@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "description": "Vue wrapper for ApexTree - a JavaScript library for creating organizational and hierarchical charts",
   "author": "ApexCharts <info@apexcharts.com>",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "main": "./dist/vue-apextree.umd.cjs",
   "module": "./dist/vue-apextree.js",
