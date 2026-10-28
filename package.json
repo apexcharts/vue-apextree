@@ -17,7 +17,7 @@
   },
   "files": [
     "dist",
-    "LICENSE"
+    "LICENSE.md"
   ],
   "keywords": [
     "vue",
